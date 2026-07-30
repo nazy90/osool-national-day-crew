@@ -49,6 +49,7 @@
     .full{grid-column:1/-1}
     label{font-weight:700;font-size:15px;color:var(--ink)}
     .req{color:var(--danger)}
+    .hint{color:var(--muted);font-size:12.5px;line-height:1.5}
     input,select,textarea{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:8px;font:inherit;background:#080808;color:var(--white);outline:none}
     input::placeholder,textarea::placeholder{color:#777}
     input:focus,select:focus,textarea:focus{border-color:var(--white);box-shadow:0 0 0 3px rgba(255,255,255,.12)}
@@ -190,6 +191,7 @@
         <div class="field">
           <label>إرفاق صورة الهوية أو جواز السفر</label>
           <input name="document_file" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+          <span class="hint">PDF أو صورة، بحد أقصى 8 ميجابايت.</span>
         </div>
 
         <div class="field">
@@ -286,6 +288,7 @@
 
   <script>
     const SHEET_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzJvQiU7mZ1wxRKygOpmezXHiFiLVFEWrQuHR1yW1b4HbsqkHOV5ZKoXJiwQQxkYGMlfw/exec";
+    const MAX_FILE_MB = 8;
 
     function toggle(selectId, fieldId){
       const select = document.getElementById(selectId);
@@ -318,7 +321,19 @@
       teamCountInput.required = isHead.value === 'نعم';
     }
 
-    function collectData(form){
+    function readFileAsBase64(file){
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const result = String(reader.result);
+          resolve(result.slice(result.indexOf(',') + 1));
+        };
+        reader.onerror = () => reject(new Error('تعذر قراءة الملف المرفق. جرّب ملفاً آخر.'));
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function collectData(form){
       const checkedDays = [...document.querySelectorAll('input[name="days"]:checked')].map(x => x.value);
       if (!checkedDays.length){
         throw new Error('يرجى اختيار يوم مشاركة واحد على الأقل.');
@@ -331,7 +346,19 @@
       }
 
       data.days = checkedDays.join('، ');
-      data.document_file = fd.get('document_file')?.name || '';
+
+      const file = fd.get('document_file');
+      data.document_file = '';
+      if (file && file.size){
+        if (file.size > MAX_FILE_MB * 1024 * 1024){
+          throw new Error(`حجم المرفق ${(file.size/1048576).toFixed(1)} ميجابايت، والحد الأقصى ${MAX_FILE_MB} ميجابايت. يرجى ضغط الصورة أو اختيار صورة أصغر.`);
+        }
+        data.document_file = file.name;
+        data.document_file_name = file.name;
+        data.document_file_type = file.type || 'application/octet-stream';
+        data.document_file_data = await readFileAsBase64(file);
+      }
+
       data.consent_accuracy = 'موافق';
       data.consent_confidentiality = 'موافق';
       data.consent_no_photography = 'موافق';
@@ -355,13 +382,30 @@
     }
 
     async function sendToSheet(data){
-      const response = await fetch(SHEET_WEB_APP_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: {'Content-Type':'text/plain;charset=utf-8'},
-        body: JSON.stringify(data)
-      });
-      return response;
+      let response;
+      try{
+        response = await fetch(SHEET_WEB_APP_URL, {
+          method: 'POST',
+          headers: {'Content-Type':'text/plain;charset=utf-8'},
+          body: JSON.stringify(data)
+        });
+      } catch(err){
+        throw new Error('تعذر الاتصال بالخادم. تحقق من الاتصال بالإنترنت وحاول مرة أخرى.');
+      }
+
+      const raw = await response.text();
+      let result;
+      try{
+        result = JSON.parse(raw);
+      } catch(err){
+        // An HTML page here means the Apps Script itself failed or is not deployed correctly.
+        throw new Error('لم يتم حفظ البيانات. يرجى إبلاغ مسؤول النموذج (خطأ في السكربت).');
+      }
+
+      if (!result.ok){
+        throw new Error('لم يتم حفظ البيانات: ' + (result.error || 'خطأ غير معروف.'));
+      }
+      return result;
     }
 
     const heroSection = document.querySelector('.hero');
@@ -402,9 +446,10 @@
       const button = document.getElementById('submitButton');
 
       try{
-        const data = collectData(this);
         button.disabled = true;
-        button.textContent = 'جار الإرسال...';
+        button.textContent = 'جار التحضير...';
+        const data = await collectData(this);
+        button.textContent = data.document_file_data ? 'جار رفع المرفق...' : 'جار الإرسال...';
 
         if (SHEET_WEB_APP_URL){
           await sendToSheet(data);

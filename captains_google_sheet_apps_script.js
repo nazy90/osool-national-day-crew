@@ -1,40 +1,107 @@
 const SPREADSHEET_ID = '1BBjshS0EIbnXDxUHbtuyRvbksn5FK7nMFDLO46IY-Y0';
 const SHEET_NAME = 'Sheet1';
 
+// Leave empty to auto-create a folder next to the spreadsheet.
+// To use a specific folder, paste its ID from the Drive URL:
+// https://drive.google.com/drive/folders/<THIS_PART_IS_THE_ID>
+const DRIVE_FOLDER_ID = '';
+const DRIVE_FOLDER_NAME = 'وثائق طاقم اليوم الوطني';
+
+const TIMEZONE = 'Asia/Riyadh';
+
+const HEADERS = [
+  'submitted_at',
+  'full_name',
+  'department',
+  'position',
+  'company',
+  'mobile',
+  'instagram_account',
+  'nationality',
+  'document_type',
+  'document_number',
+  'document_file',
+  'has_car',
+  'plate_number',
+  'car_type',
+  'days',
+  'department_head',
+  'is_head',
+  'team_count',
+  'notes',
+  'consent_accuracy',
+  'consent_confidentiality',
+  'consent_no_photography',
+  'source'
+];
+
 function doPost(e) {
-  const sheet = getSheet();
-  const data = JSON.parse(e.postData.contents || '{}');
-  const headers = [
-    'submitted_at',
-    'full_name',
-    'department',
-    'position',
-    'company',
-    'mobile',
-    'instagram_account',
-    'nationality',
-    'document_type',
-    'document_number',
-    'document_file',
-    'has_car',
-    'plate_number',
-    'car_type',
-    'days',
-    'department_head',
-    'is_head',
-    'team_count',
-    'notes',
-    'consent_accuracy',
-    'consent_confidentiality',
-    'consent_no_photography',
-    'source'
-  ];
+  try {
+    const data = JSON.parse((e && e.postData && e.postData.contents) || '{}');
 
-  ensureHeaders(sheet, headers);
-  sheet.appendRow(headers.map(header => data[header] || ''));
+    // Upload the attached ID/passport to Drive and store its link in the sheet.
+    if (data.document_file_data) {
+      data.document_file = saveDocument(data);
+    }
 
+    const sheet = getSheet();
+    ensureHeaders(sheet, HEADERS);
+    sheet.appendRow(HEADERS.map(header => data[header] || ''));
+
+    return json({ok: true, file: data.document_file || ''});
+  } catch (error) {
+    // Surface the failure so the form can show a real error instead of a false success.
+    return json({ok: false, error: String((error && error.message) || error)});
+  }
+}
+
+function doGet() {
+  return json({ok: true, service: 'Captains crew form', time: new Date().toISOString()});
+}
+
+function saveDocument(data) {
+  const bytes = Utilities.base64Decode(data.document_file_data);
+  const mime = data.document_file_type || 'application/octet-stream';
+  const stamp = Utilities.formatDate(new Date(), TIMEZONE, 'yyyy-MM-dd_HH-mm-ss');
+  const name = [
+    sanitize(data.full_name) || 'crew',
+    sanitize(data.document_number),
+    stamp
+  ].filter(String).join('_');
+
+  const blob = Utilities.newBlob(bytes, mime, name + extensionFor(data.document_file_name, mime));
+  return getFolder().createFile(blob).getUrl();
+}
+
+function getFolder() {
+  if (DRIVE_FOLDER_ID) return DriveApp.getFolderById(DRIVE_FOLDER_ID);
+
+  const parent = spreadsheetParent();
+  const existing = parent.getFoldersByName(DRIVE_FOLDER_NAME);
+  return existing.hasNext() ? existing.next() : parent.createFolder(DRIVE_FOLDER_NAME);
+}
+
+function spreadsheetParent() {
+  const parents = DriveApp.getFileById(SPREADSHEET_ID).getParents();
+  return parents.hasNext() ? parents.next() : DriveApp.getRootFolder();
+}
+
+function extensionFor(fileName, mime) {
+  const match = String(fileName || '').match(/\.[a-z0-9]+$/i);
+  if (match) return match[0].toLowerCase();
+  if (mime.indexOf('pdf') > -1) return '.pdf';
+  if (mime.indexOf('png') > -1) return '.png';
+  if (mime.indexOf('jpeg') > -1 || mime.indexOf('jpg') > -1) return '.jpg';
+  return '';
+}
+
+function sanitize(value) {
+  return String(value || '').replace(/[\\/:*?"<>|]/g, '-').trim();
+}
+
+function json(payload) {
   return ContentService
-    .createTextOutput(JSON.stringify({ok: true}))
+    .createTextOutput(JSON.stringify(payload))
     .setMimeType(ContentService.MimeType.JSON);
 }
 
