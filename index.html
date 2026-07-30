@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>كابتنز | بيانات طاقم اليوم الوطني</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap');
+    :root{
+      --ink:#f6f4ee;
+      --soft:#c7c7c2;
+      --muted:#8f908b;
+      --night:#050505;
+      --panel:#101010;
+      --panel-2:#171717;
+      --line:#2f2f2d;
+      --white:#ffffff;
+      --accent:#d8ff3e;
+      --danger:#ff665c;
+      --shadow:0 24px 70px rgba(0,0,0,.45);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:'IBM Plex Sans Arabic',Tahoma,Arial,sans-serif;
+      background:
+        radial-gradient(circle at 8% 0%, rgba(216,255,62,.13), transparent 28%),
+        linear-gradient(180deg,#050505 0%,#111 56%,#050505 100%);
+      color:var(--ink);
+      line-height:1.7;
+    }
+    .wrap{width:min(980px,92%);margin:34px auto 44px}
+    .brandbar{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:22px}
+    .brand{display:flex;flex-direction:column;gap:8px;min-width:0}
+    .logo-image{display:block;width:min(340px,74vw);height:auto}
+    .brandtag{margin:0;color:var(--muted);font-size:12px;font-weight:700;letter-spacing:0;text-transform:uppercase}
+    .status{display:flex;align-items:center;gap:8px;color:var(--soft);font-size:13px;white-space:nowrap;padding-top:10px}
+    .dot{width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 18px rgba(216,255,62,.9)}
+    .hero,form{background:rgba(16,16,16,.9);border:1px solid var(--line);box-shadow:var(--shadow);backdrop-filter:blur(14px)}
+    .hero{border-radius:18px;padding:30px;margin-bottom:18px;position:relative;overflow:hidden}
+    .hero:before{content:"";position:absolute;inset:auto 0 0 auto;width:210px;height:7px;background:var(--white)}
+    h1{margin:0 0 10px;font-size:38px;line-height:1.2;font-weight:800}
+    .subtitle{margin:0;color:var(--soft);max-width:760px}
+    .notice{margin-top:18px;padding:14px 16px;border-radius:8px;background:#0a0a0a;border:1px solid var(--line);color:var(--soft);font-size:14px}
+    form{border-radius:18px;padding:28px}
+    .section-title{margin:0 0 16px;padding-bottom:10px;border-bottom:1px solid var(--line);font-size:18px;color:var(--white);font-weight:800}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+    .field{display:flex;flex-direction:column;gap:7px}
+    .full{grid-column:1/-1}
+    label{font-weight:700;font-size:15px;color:var(--ink)}
+    .req{color:var(--danger)}
+    input,select,textarea{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:8px;font:inherit;background:#080808;color:var(--white);outline:none}
+    input::placeholder,textarea::placeholder{color:#777}
+    input:focus,select:focus,textarea:focus{border-color:var(--white);box-shadow:0 0 0 3px rgba(255,255,255,.12)}
+    textarea{min-height:104px;resize:vertical}
+    .choices{display:flex;flex-wrap:wrap;gap:10px 18px;padding:10px 0 2px}
+    .choices.column{flex-direction:column;align-items:flex-start}
+    .choices label{font-weight:400;display:flex;align-items:flex-start;gap:8px;cursor:pointer}
+    .choices input{width:auto;margin-top:6px}
+    .hidden{display:none}
+    .actions{display:flex;gap:12px;justify-content:flex-start;margin-top:26px;flex-wrap:wrap}
+    button{border:0;border-radius:10px;padding:13px 20px;font:inherit;font-weight:800;cursor:pointer}
+    .primary{background:var(--white);color:#000}
+    .primary:hover{background:var(--accent)}
+    .secondary{background:#242424;color:var(--white)}
+    .message{display:none;margin-top:18px;padding:13px 15px;border-radius:10px;font-weight:700}
+    .message.ok{display:block;background:#e9f8f2;color:#106046;border:1px solid #a9e5d0}
+    .message.error{display:block;background:#fff0ed;color:#912018;border:1px solid #ffc9c0}
+    .footer{text-align:center;color:var(--muted);font-size:13px;margin-top:16px}
+    @media(max-width:700px){
+      .wrap{margin-top:22px}
+      .brandbar{align-items:flex-start;flex-direction:column}
+      .status{white-space:normal}
+      .grid{grid-template-columns:1fr}
+      .full{grid-column:auto}
+      .hero,form{padding:22px}
+      h1{font-size:27px}
+      .logo-image{width:min(280px,82vw)}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="brandbar">
+      <div class="brand">
+        <img class="logo-image" src="captains-logo-white.png" alt="Captains Film" />
+        <p class="brandtag">CREW REGISTRATION</p>
+      </div>
+      <div class="status"><span class="dot"></span><span>تسجيل طاقم المشروع</span></div>
+    </div>
+
+    <section class="hero">
+      <h1>بيانات طاقم اليوم الوطني</h1>
+      <p class="subtitle">يرجى تعبئة البيانات بدقة، وكتابة الاسم ورقم الهوية أو جواز السفر كما هو في الوثيقة الرسمية.</p>
+      <div class="notice">ستُرسل المعلومات إلى شيت كابتنز المخصص لتنظيم الطاقم والتصاريح. يرجى تعبئة نموذج مستقل لكل فرد.</div>
+    </section>
+
+    <form id="crewForm">
+      <h2 class="section-title">بيانات الفرد</h2>
+      <div class="grid">
+        <div class="field full">
+          <label>الاسم الكامل كما هو في الهوية أو جواز السفر <span class="req">*</span></label>
+          <input name="full_name" autocomplete="name" required />
+        </div>
+
+        <div class="field">
+          <label>القسم <span class="req">*</span></label>
+          <select name="department" required>
+            <option value="">اختر القسم</option>
+            <option>الإخراج</option><option>الإنتاج</option><option>الأرت</option>
+            <option>الملابس</option><option>الكاميرا والمعدات</option><option>الإضاءة</option>
+            <option>الصوت</option><option>المكياج والشعر</option><option>النقل والسائقون</option><option>أخرى</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>المسمى الوظيفي / Position <span class="req">*</span></label>
+          <input name="position" required />
+        </div>
+
+        <div class="field">
+          <label>اسم الشركة أو المورد</label>
+          <input name="company" />
+        </div>
+
+        <div class="field">
+          <label>رقم الجوال <span class="req">*</span></label>
+          <input name="mobile" type="tel" inputmode="tel" required />
+        </div>
+
+        <div class="field">
+          <label>حساب الإنستقرام</label>
+          <input name="instagram_account" inputmode="text" placeholder="@username" />
+        </div>
+
+        <div class="field">
+          <label>الجنسية <span class="req">*</span></label>
+          <input name="nationality" required />
+        </div>
+
+        <div class="field">
+          <label>نوع الوثيقة <span class="req">*</span></label>
+          <select name="document_type" required>
+            <option value="">اختر نوع الوثيقة</option>
+            <option>هوية وطنية</option><option>هوية مقيم</option><option>جواز سفر</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>رقم الهوية أو جواز السفر <span class="req">*</span></label>
+          <input name="document_number" required />
+        </div>
+
+        <div class="field">
+          <label>إرفاق صورة الهوية أو جواز السفر</label>
+          <input name="document_file" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+        </div>
+
+        <div class="field">
+          <label>هل ستدخل الموقع بسيارة؟ <span class="req">*</span></label>
+          <select name="has_car" id="hasCar" required>
+            <option value="">اختر</option><option value="نعم">نعم</option><option value="لا">لا</option>
+          </select>
+        </div>
+
+        <div class="field hidden" id="plateField">
+          <label>رقم لوحة السيارة <span class="req">*</span></label>
+          <input name="plate_number" />
+        </div>
+
+        <div class="field hidden" id="carTypeField">
+          <label>نوع السيارة <span class="req">*</span></label>
+          <input name="car_type" placeholder="مثال: سيدان، فان، شاحنة" />
+        </div>
+
+        <div class="field full">
+          <label>أيام المشاركة في المشروع <span class="req">*</span></label>
+          <div class="choices">
+            <label><input type="checkbox" name="days" value="التكنكال ريكي"> التكنكال ريكي</label>
+            <label><input type="checkbox" name="days" value="يوم التجهيز"> يوم التجهيز</label>
+            <label><input type="checkbox" name="days" value="يوم التصوير الأول"> يوم التصوير الأول</label>
+            <label><input type="checkbox" name="days" value="يوم التصوير الثاني"> يوم التصوير الثاني</label>
+            <label><input type="checkbox" name="days" value="أخرى"> أخرى</label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>اسم مسؤول القسم <span class="req">*</span></label>
+          <input name="department_head" required />
+        </div>
+
+        <div class="field">
+          <label>هل أنت رئيس القسم؟ <span class="req">*</span></label>
+          <select name="is_head" id="isHead" required>
+            <option value="">اختر</option><option value="نعم">نعم</option><option value="لا">لا</option>
+          </select>
+        </div>
+
+        <div class="field hidden" id="teamCountField">
+          <label>كم عدد أعضاء الفريق؟ <span class="req">*</span></label>
+          <input name="team_count" type="number" min="1" />
+        </div>
+
+        <div class="field full">
+          <label>ملاحظات إضافية</label>
+          <textarea name="notes"></textarea>
+        </div>
+
+        <div class="field full">
+          <div class="choices column">
+            <label><input type="checkbox" name="consent_accuracy" required> أقر بأن جميع البيانات المدخلة صحيحة ومطابقة للوثائق الرسمية.</label>
+            <label><input type="checkbox" name="consent_confidentiality" required> أتعهد بالمحافظة على سرية جميع معلومات المشروع وعدم مشاركتها أو تداولها مع أي طرف غير مصرح له.</label>
+            <label><input type="checkbox" name="consent_no_photography" required> أتعهد بعدم التصوير أو التسجيل داخل مواقع المشروع، وعدم نشر أي صور أو مقاطع أو معلومات تخص المشروع دون موافقة خطية مسبقة.</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="primary" id="submitButton" type="submit">إرسال البيانات</button>
+        <button class="secondary" type="reset">مسح النموذج</button>
+      </div>
+      <div id="formMessage" class="message" role="status" aria-live="polite"></div>
+    </form>
+
+    <div class="footer">نموذج داخلي خاص بكابتنز - مشروع اليوم الوطني</div>
+  </div>
+
+  <script>
+    const SHEET_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzJvQiU7mZ1wxRKygOpmezXHiFiLVFEWrQuHR1yW1b4HbsqkHOV5ZKoXJiwQQxkYGMlfw/exec";
+
+    function toggle(selectId, fieldId){
+      const select = document.getElementById(selectId);
+      const field = document.getElementById(fieldId);
+      const update = () => field.classList.toggle('hidden', select.value !== 'نعم');
+      select.addEventListener('change', update);
+      update();
+    }
+
+    function showMessage(type, text){
+      const message = document.getElementById('formMessage');
+      message.className = `message ${type}`;
+      message.textContent = text;
+    }
+
+    toggle('hasCar','plateField');
+    toggle('hasCar','carTypeField');
+    toggle('isHead','teamCountField');
+
+    const hasCar = document.getElementById('hasCar');
+    const isHead = document.getElementById('isHead');
+    const plateInput = document.querySelector('input[name="plate_number"]');
+    const carTypeInput = document.querySelector('input[name="car_type"]');
+    const teamCountInput = document.querySelector('input[name="team_count"]');
+
+    function updateRequired(){
+      const carRequired = hasCar.value === 'نعم';
+      plateInput.required = carRequired;
+      carTypeInput.required = carRequired;
+      teamCountInput.required = isHead.value === 'نعم';
+    }
+
+    function collectData(form){
+      const checkedDays = [...document.querySelectorAll('input[name="days"]:checked')].map(x => x.value);
+      if (!checkedDays.length){
+        throw new Error('يرجى اختيار يوم مشاركة واحد على الأقل.');
+      }
+
+      const fd = new FormData(form);
+      const data = {};
+      for (const [key,value] of fd.entries()){
+        if (key !== 'document_file' && key !== 'days' && !key.startsWith('consent_')) data[key] = value;
+      }
+
+      data.days = checkedDays.join('، ');
+      data.document_file = fd.get('document_file')?.name || '';
+      data.consent_accuracy = 'موافق';
+      data.consent_confidentiality = 'موافق';
+      data.consent_no_photography = 'موافق';
+      data.submitted_at = new Date().toISOString();
+      data.source = 'Captains National Day Crew Form';
+      return data;
+    }
+
+    function downloadCsv(data){
+      const headers = Object.keys(data);
+      const values = headers.map(h => `"${String(data[h]).replace(/"/g,'""')}"`);
+      const csv = '\uFEFF' + headers.join(',') + '\n' + values.join(',');
+      const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const safeName = (data.full_name || 'crew-member').replace(/[\\/:*?"<>|]/g,'-');
+      a.href = url;
+      a.download = `CAPTAINS-NATIONAL-DAY-${safeName}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    async function sendToSheet(data){
+      const response = await fetch(SHEET_WEB_APP_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {'Content-Type':'text/plain;charset=utf-8'},
+        body: JSON.stringify(data)
+      });
+      return response;
+    }
+
+    hasCar.addEventListener('change', updateRequired);
+    isHead.addEventListener('change', updateRequired);
+    updateRequired();
+
+    document.getElementById('crewForm').addEventListener('reset', function(){
+      setTimeout(() => {
+        updateRequired();
+        document.getElementById('formMessage').className = 'message';
+      });
+    });
+
+    document.getElementById('crewForm').addEventListener('submit', async function(e){
+      e.preventDefault();
+      const button = document.getElementById('submitButton');
+
+      try{
+        const data = collectData(this);
+        button.disabled = true;
+        button.textContent = 'جار الإرسال...';
+
+        if (SHEET_WEB_APP_URL){
+          await sendToSheet(data);
+          showMessage('ok', 'تم إرسال البيانات بنجاح إلى شيت كابتنز.');
+          this.reset();
+          updateRequired();
+        } else {
+          downloadCsv(data);
+          showMessage('ok', 'لم يتم وضع رابط الشيت بعد، لذلك تم حفظ البيانات كملف CSV على جهازك.');
+        }
+      } catch(error){
+        showMessage('error', error.message || 'تعذر إرسال البيانات. يرجى المحاولة مرة أخرى.');
+      } finally {
+        button.disabled = false;
+        button.textContent = 'إرسال البيانات';
+      }
+    });
+  </script>
+</body>
+</html>
