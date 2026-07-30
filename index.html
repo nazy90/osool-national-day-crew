@@ -67,6 +67,42 @@
     .message.ok{display:block;background:#e9f8f2;color:#106046;border:1px solid #a9e5d0}
     .message.error{display:block;background:#fff0ed;color:#912018;border:1px solid #ffc9c0}
     .footer{text-align:center;color:var(--muted);font-size:13px;margin-top:16px}
+
+    .thanks{
+      display:none;background:rgba(16,16,16,.9);border:1px solid var(--line);
+      box-shadow:var(--shadow);backdrop-filter:blur(14px);border-radius:18px;
+      padding:44px 34px;text-align:center;position:relative;overflow:hidden;
+    }
+    .thanks.show{display:block;animation:rise .45s ease both}
+    .thanks:before{content:"";position:absolute;inset:0 auto auto 0;width:210px;height:7px;background:var(--accent)}
+    @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+    .thanks-mark{
+      width:74px;height:74px;margin:6px auto 20px;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      background:var(--accent);color:#0a0a0a;font-size:38px;font-weight:800;line-height:1;
+      box-shadow:0 0 40px rgba(216,255,62,.35)
+    }
+    .thanks h2{margin:0 0 12px;font-size:32px;font-weight:800;color:var(--white)}
+    .thanks-lead{margin:0 auto 8px;max-width:520px;color:var(--ink);font-size:17px}
+    .thanks-note{margin:0 auto;max-width:520px;color:var(--muted);font-size:14px}
+    .thanks-social{
+      margin:30px auto 0;padding:22px 18px;max-width:520px;
+      border:1px solid var(--line);border-radius:14px;background:#0a0a0a
+    }
+    .thanks-social p{margin:0 0 14px;color:var(--soft);font-weight:700;font-size:15px}
+    .ig-link{
+      display:inline-flex;align-items:center;gap:9px;padding:12px 22px;border-radius:999px;
+      background:var(--white);color:#000;text-decoration:none;font-weight:800;font-size:15px;
+      transition:background .18s ease,transform .18s ease;direction:ltr
+    }
+    .ig-link:hover{background:var(--accent);transform:translateY(-1px)}
+    .ig-link svg{width:19px;height:19px;flex:none}
+    .thanks .again{margin-top:26px}
+    @media(max-width:700px){
+      .thanks{padding:34px 22px}
+      .thanks h2{font-size:26px}
+      .thanks-lead{font-size:16px}
+    }
     @media(max-width:700px){
       .wrap{margin-top:22px}
       .brandbar{align-items:flex-start;flex-direction:column}
@@ -83,7 +119,7 @@
   <div class="wrap">
     <div class="brandbar">
       <div class="brand">
-        <img class="logo-image" src="captains-logo-white.png" alt="Captains Film" />
+        <img class="logo-image" src="captains-logo-ar-white.png" alt="كابتنز" />
         <p class="brandtag">CREW REGISTRATION</p>
       </div>
       <div class="status"><span class="dot"></span><span>تسجيل طاقم المشروع</span></div>
@@ -222,6 +258,29 @@
       <div id="formMessage" class="message" role="status" aria-live="polite"></div>
     </form>
 
+    <section class="thanks" id="thankYou" role="status" aria-live="polite" tabindex="-1">
+      <div class="thanks-mark" aria-hidden="true">✓</div>
+      <h2>شكراً لك</h2>
+      <p class="thanks-lead">تم استلام بياناتك بنجاح، وسيتم إدراجها ضمن كشف طاقم اليوم الوطني.</p>
+      <p class="thanks-note">في حال احتجنا أي توضيح، سيتواصل معك مسؤول القسم.</p>
+
+      <div class="thanks-social">
+        <p>تابعنا على انستا</p>
+        <a class="ig-link" href="https://www.instagram.com/captains_film/" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+          </svg>
+          <span>@captains_film</span>
+        </a>
+      </div>
+
+      <div class="again">
+        <button class="secondary" type="button" id="newEntryButton">تسجيل فرد آخر</button>
+      </div>
+    </section>
+
     <div class="footer">نموذج داخلي خاص بكابتنز - مشروع اليوم الوطني</div>
   </div>
 
@@ -305,6 +364,28 @@
       return response;
     }
 
+    const heroSection = document.querySelector('.hero');
+    const crewForm = document.getElementById('crewForm');
+    const thankYou = document.getElementById('thankYou');
+
+    function showThanks(){
+      showMessage('', '');
+      heroSection.classList.add('hidden');
+      crewForm.classList.add('hidden');
+      thankYou.classList.add('show');
+      window.scrollTo({top:0, behavior:'smooth'});
+      thankYou.focus();
+    }
+
+    function showForm(){
+      thankYou.classList.remove('show');
+      heroSection.classList.remove('hidden');
+      crewForm.classList.remove('hidden');
+      window.scrollTo({top:0, behavior:'smooth'});
+    }
+
+    document.getElementById('newEntryButton').addEventListener('click', showForm);
+
     hasCar.addEventListener('change', updateRequired);
     isHead.addEventListener('change', updateRequired);
     updateRequired();
@@ -327,9 +408,9 @@
 
         if (SHEET_WEB_APP_URL){
           await sendToSheet(data);
-          showMessage('ok', 'تم إرسال البيانات بنجاح إلى شيت كابتنز.');
           this.reset();
           updateRequired();
+          showThanks();
         } else {
           downloadCsv(data);
           showMessage('ok', 'لم يتم وضع رابط الشيت بعد، لذلك تم حفظ البيانات كملف CSV على جهازك.');
