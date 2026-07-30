@@ -1,11 +1,11 @@
 const SPREADSHEET_ID = '1BBjshS0EIbnXDxUHbtuyRvbksn5FK7nMFDLO46IY-Y0';
 const SHEET_NAME = 'Sheet1';
 
-// Leave empty to auto-create a folder next to the spreadsheet.
-// To use a specific folder, paste its ID from the Drive URL:
-// https://drive.google.com/drive/folders/<THIS_PART_IS_THE_ID>
-const DRIVE_FOLDER_ID = '';
-const DRIVE_FOLDER_NAME = 'وثائق طاقم اليوم الوطني';
+// Documents are uploaded to this Drive folder:
+// https://drive.google.com/drive/folders/1zteHC5UFYn3tOQmbdYuMN1tcPxWibvBS
+// Leave DRIVE_FOLDER_ID empty to auto-create a folder next to the spreadsheet instead.
+const DRIVE_FOLDER_ID = '1zteHC5UFYn3tOQmbdYuMN1tcPxWibvBS';
+const DRIVE_FOLDER_NAME = 'Osool - Team';
 
 const TIMEZONE = 'Asia/Riyadh';
 
