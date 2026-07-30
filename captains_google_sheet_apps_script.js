@@ -46,13 +46,30 @@ function doPost(e) {
 
     const sheet = getSheet();
     ensureHeaders(sheet, HEADERS);
-    sheet.appendRow(HEADERS.map(header => data[header] || ''));
+
+    // Format the target cells as plain text BEFORE writing, otherwise Sheets
+    // reads values like "0532414582" as numbers and drops the leading zero.
+    const row = sheet.getLastRow() + 1;
+    applyTextFormats(sheet, row);
+    sheet.getRange(row, 1, 1, HEADERS.length)
+         .setValues([HEADERS.map(header => data[header] || '')]);
 
     return json({ok: true, file: data.document_file || ''});
   } catch (error) {
     // Surface the failure so the form can show a real error instead of a false success.
     return json({ok: false, error: String((error && error.message) || error)});
   }
+}
+
+// Columns that must stay text: phone numbers, ID numbers and plate numbers all
+// lose meaning if Sheets treats them as numbers.
+const TEXT_COLUMNS = ['mobile', 'document_number', 'plate_number', 'instagram_account'];
+
+function applyTextFormats(sheet, row) {
+  TEXT_COLUMNS.forEach(function (name) {
+    const index = HEADERS.indexOf(name);
+    if (index > -1) sheet.getRange(row, index + 1).setNumberFormat('@');
+  });
 }
 
 function doGet() {
